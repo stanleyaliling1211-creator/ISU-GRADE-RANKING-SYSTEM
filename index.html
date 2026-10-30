@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Grade Calculator & Ranking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 pb-12">
+
+    <header class="bg-indigo-900 text-white shadow-lg border-b border-indigo-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2.5 rounded-xl shadow-inner">
+                    <i class="fa-solid fa-graduation-cap text-2xl text-amber-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">Academic Grade & Ranking Portal</h1>
+                    <p class="text-xs text-indigo-200">Isabela State University System • Performance Analytics</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 text-sm bg-indigo-800/80 px-4 py-2 rounded-lg border border-indigo-700">
+                <i class="fa-solid fa-university text-indigo-300"></i>
+                <span class="font-medium text-indigo-100">Multi-Campus Registry</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
+
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Registered</p>
+                    <h3 id="stat-total-students" class="text-3xl font-bold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Overall Average GWA</p>
+                    <h3 id="stat-overall-gwa" class="text-3xl font-bold text-slate-800 mt-1">0.00</h3>
+                </div>
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Top Performer</p>
+                    <h3 id="stat-top-student" class="text-lg font-bold text-slate-800 mt-1 truncate max-w-[140px]">N/A</h3>
+                </div>
+                <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Passing Rate</p>
+                    <h3 id="stat-pass-rate" class="text-3xl font-bold text-slate-800 mt-1">0%</h3>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <section class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 h-fit">
+                <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-100">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus text-indigo-600"></i>
+                        <span>Register Student</span>
+                    </h2>
+                    <span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-medium">OOP Engine</span>
+                </div>
+
+                <form id="student-form" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Student ID *</label>
+                            <input type="text" id="student-id" required placeholder="e.g. 23-0192" 
+                                class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Full Name *</label>
+                            <input type="text" id="full-name" required placeholder="e.g. Juan Cruz" 
+                                class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">University Campus *</label>
+                        <select id="campus" required 
+                            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition bg-white">
+                            <option value="">Select Campus...</option>
+                            <option value="Echague Campus">Echague Campus (Main & Administrative Seat)</option>
+                            <option value="Cabagan Campus">Cabagan Campus</option>
+                            <option value="Cauayan Campus">Cauayan Campus</option>
+                            <option value="Ilagan Campus">Ilagan Campus</option>
+                            <option value="Roxas Campus">Roxas Campus (Rang-ayan & Matusalem)</option>
+                            <option value="Angadanan Campus">Angadanan Campus</option>
+                            <option value="San Mariano Campus">San Mariano Campus</option>
+                            <option value="San Mateo Campus">San Mateo Campus</option>
+                            <option value="Jones Campus">Jones Campus</option>
+                            <option value="Santiago Extension Unit">Santiago Extension Unit</option>
+                            <option value="Palanan Extension Unit">Palanan Extension Unit</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Course / Program *</label>
+                            <input type="text" id="course" required placeholder="e.g. BSIT, BSCS, BSEE" 
+                                class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Section *</label>
+                            <input type="text" id="section" required placeholder="e.g. 2A, 1B" 
+                                class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100">
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Academic Term Grades (0 - 100)</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs text-slate-500 mb-1">Prelims *</label>
+                                <input type="number" id="prelim-grade" required min="0" max="100" step="0.01" placeholder="0-100"
+                                    class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-500 mb-1">Midterms *</label>
+                                <input type="number" id="midterm-grade" required min="0" max="100" step="0.01" placeholder="0-100"
+                                    class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-500 mb-1">Finals *</label>
+                                <input type="number" id="final-grade" required min="0" max="100" step="0.01" placeholder="0-100"
+                                    class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-3">
+                        <button type="submit" 
+                            class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Save Student</span>
+                        </button>
+                        <button type="button" id="btn-reset-form"
+                            class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-2.5 px-4 rounded-xl transition text-sm">
+                            Clear
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-bar text-indigo-600"></i>
+                            <span>Campus GWA Performance</span>
+                        </h2>
+                        <span class="text-xs text-slate-400">Real-time Visual Analytics</span>
+                    </div>
+                    <div class="h-[280px] w-full relative">
+                        <canvas id="campusChart"></canvas>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 text-center mt-4">
+                    Graph reflects average General Weighted Average (GWA) per ISU campus calculated dynamically from registered records.
+                </p>
+            </section>
+
+        </div>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-list-ol text-indigo-600"></i>
+                        <span>Student Rankings & Database</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Students are automatically ordered by highest General Weighted Average (GWA)</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div class="relative flex-1 md:w-56">
+                        <i class="fa-solid fa-search absolute left-3 top-2.5 text-xs text-slate-400"></i>
+                        <input type="text" id="search-input" placeholder="Search name or ID..." 
+                            class="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                    </div>
+
+                    <select id="filter-campus" class="py-1.5 px-3 text-xs border border-slate-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="ALL">All Campuses</option>
+                        <option value="Echague Campus">Echague Campus</option>
+                        <option value="Cabagan Campus">Cabagan Campus</option>
+                        <option value="Cauayan Campus">Cauayan Campus</option>
+                        <option value="Ilagan Campus">Ilagan Campus</option>
+                        <option value="Roxas Campus">Roxas Campus</option>
+                        <option value="Angadanan Campus">Angadanan Campus</option>
+                        <option value="San Mariano Campus">San Mariano Campus</option>
+                        <option value="San Mateo Campus">San Mateo Campus</option>
+                        <option value="Jones Campus">Jones Campus</option>
+                        <option value="Santiago Extension Unit">Santiago Extension Unit</option>
+                        <option value="Palanan Extension Unit">Palanan Extension Unit</option>
+                    </select>
+
+                    <button id="btn-clear-all" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-lg border border-rose-200 transition font-medium">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Clear All
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold tracking-wider border-b border-slate-200">
+                            <th class="py-3 px-4">Rank</th>
+                            <th class="py-3 px-4">Student Info</th>
+                            <th class="py-3 px-4">Campus</th>
+                            <th class="py-3 px-4">Course / Sec</th>
+                            <th class="py-3 px-4 text-center">Prelim</th>
+                            <th class="py-3 px-4 text-center">Midterm</th>
+                            <th class="py-3 px-4 text-center">Final</th>
+                            <th class="py-3 px-4 text-center">GWA</th>
+                            <th class="py-3 px-4 text-center">Status</th>
+                            <th class="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-table-body" class="divide-y divide-slate-100 text-xs">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="empty-state" class="py-12 text-center hidden">
+                <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-folder-open text-xl"></i>
+                </div>
+                <p class="text-slate-600 font-medium">No student records found.</p>
+                <p class="text-slate-400 text-xs mt-1">Register a student above to begin generating class rankings.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        class Student {
+            constructor(id, fullName, campus, course, section, prelim, midterm, final) {
+                this.id = id;
+                this.fullName = fullName;
+                this.campus = campus;
+                this.course = course;
+                this.section = section;
+                this.prelim = parseFloat(prelim);
+                this.midterm = parseFloat(midterm);
+                this.final = parseFloat(final);
+                this.gwa = this.calculateGWA();
+            }
+
+            calculateGWA() {
+                const weightedAvg = (this.prelim * 0.30) + (this.midterm * 0.30) + (this.final * 0.40);
+                return Math.round(weightedAvg * 100) / 100;
+            }
+
+            getAcademicStatus() {
+                return this.gwa >= 75.0 ? 'Passed' : 'Failed';
+            }
+
+            getHonorRemarks() {
+                if (this.gwa >= 98) return 'Summa Cum Laude Candidate';
+                if (this.gwa >= 95) return 'Magna Cum Laude Candidate';
+                if (this.gwa >= 92) return 'Cum Laude Candidate';
+                if (this.gwa >= 88) return 'Dean\'s List Candidate';
+                return 'Regular';
+            }
+        }
+
+        class GradeSystemManager {
+            constructor() {
+                this.students = [];
+                this.chartInstance = null;
+                
+                this.loadFromStorage();
+                this.initChart();
+            }
+
+            addStudent(student) {
+                this.students.push(student);
+                this.saveToStorage();
+                this.render();
+            }
+
+            removeStudent(id) {
+                this.students = this.students.filter(student => student.id !== id);
+                this.saveToStorage();
+                this.render();
+            }
+
+            clearAllStudents() {
+                if (this.students.length === 0) return;
+                if (confirm("Are you sure you want to erase all student records?")) {
+                    this.students = [];
+                    this.saveToStorage();
+                    this.render();
+                }
+            }
+
+            getRankedStudents(filterCampus = 'ALL', searchQuery = '') {
+                let filtered = [...this.students];
+
+                if (filterCampus !== 'ALL') {
+                    filtered = filtered.filter(s => s.campus === filterCampus);
+                }
+
+                if (searchQuery.trim() !== '') {
+                    const q = searchQuery.toLowerCase();
+                    filtered = filtered.filter(s => s.fullName.toLowerCase().includes(q) || s.id.toLowerCase().includes(q));
+                }
+
+                return filtered.sort((a, b) => b.gwa - a.gwa);
+            }
+
+            saveToStorage() {
+                localStorage.setItem('isu_student_records', JSON.stringify(this.students));
+            }
+
+            loadFromStorage() {
+                const stored = localStorage.getItem('isu_student_records');
+                if (stored) {
+                    try {
+                        const parsed = JSON.parse(stored);
+                        this.students = parsed.map(item => new Student(
+                            item.id, item.fullName, item.campus, item.course, 
+                            item.section, item.prelim, item.midterm, item.final
+                        ));
+                    } catch (e) {
+                        console.error("Failed to parse local storage records:", e);
+                        this.students = [];
+                    }
+                }
+            }
+
+            updateDashboardStats() {
+                const total = this.students.length;
+                document.getElementById('stat-total-students').textContent = total;
+
+                if (total === 0) {
+                    document.getElementById('stat-overall-gwa').textContent = '0.00';
+                    document.getElementById('stat-top-student').textContent = 'N/A';
+                    document.getElementById('stat-pass-rate').textContent = '0%';
+                    return;
+                }
+
+                const sumGWA = this.students.reduce((acc, student) => acc + student.gwa, 0);
+                const avgGWA = (sumGWA / total).toFixed(2);
+                document.getElementById('stat-overall-gwa').textContent = avgGWA;
+
+                const sorted = [...this.students].sort((a, b) => b.gwa - a.gwa);
+                document.getElementById('stat-top-student').textContent = sorted[0].fullName;
+
+                const passedCount = this.students.filter(s => s.getAcademicStatus() === 'Passed').length;
+                const passRate = Math.round((passedCount / total) * 100);
+                document.getElementById('stat-pass-rate').textContent = `${passRate}%`;
+            }
+
+            initChart() {
+                const ctx = document.getElementById('campusChart').getContext('2d');
+                this.chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Average GWA per Campus',
+                            data: [],
+                            backgroundColor: 'rgba(79, 70, 229, 0.75)',
+                            borderColor: 'rgba(79, 70, 229, 1)',
+                            borderWidth: 1.5,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                grid: { color: '#f1f5f9' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+                this.updateChart();
+            }
+
+            updateChart() {
+                if (!this.chartInstance) return;
+
+                const campusMap = {};
+                this.students.forEach(s => {
+                    if (!campusMap[s.campus]) {
+                        campusMap[s.campus] = { totalGwa: 0, count: 0 };
+                    }
+                    campusMap[s.campus].totalGwa += s.gwa;
+                    campusMap[s.campus].count += 1;
+                });
+
+                const labels = Object.keys(campusMap);
+                const averages = labels.map(c => (campusMap[c].totalGwa / campusMap[c].count).toFixed(2));
+
+                this.chartInstance.data.labels = labels.map(l => l.replace(' Campus', '').replace(' Extension Unit', ' Ext.'));
+                this.chartInstance.data.datasets[0].data = averages;
+                this.chartInstance.update();
+            }
+
+            render() {
+                this.updateDashboardStats();
+                this.updateChart();
+
+                const campusFilter = document.getElementById('filter-campus').value;
+                const searchQuery = document.getElementById('search-input').value;
+                const rankedList = this.getRankedStudents(campusFilter, searchQuery);
+                
+                const tbody = document.getElementById('student-table-body');
+                const emptyState = document.getElementById('empty-state');
+                tbody.innerHTML = '';
+
+                if (rankedList.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    return;
+                } else {
+                    emptyState.classList.add('hidden');
+                }
+
+                rankedList.forEach((student, index) => {
+                    const rank = index + 1;
+                    const status = student.getAcademicStatus();
+                    const isPassed = status === 'Passed';
+                    
+                    let rankBadge = `<span class="font-semibold text-slate-500">#${rank}</span>`;
+                    if (campusFilter === 'ALL' && searchQuery === '') {
+                        if (rank === 1) rankBadge = `<span class="inline-flex items-center justify-center w-6 h-6 bg-amber-100 text-amber-600 rounded-full font-bold text-xs"><i class="fa-solid fa-crown text-amber-500"></i></span>`;
+                        else if (rank === 2) rankBadge = `<span class="inline-flex items-center justify-center w-6 h-6 bg-slate-200 text-slate-600 rounded-full font-bold text-xs">2</span>`;
+                        else if (rank === 3) rankBadge = `<span class="inline-flex items-center justify-center w-6 h-6 bg-amber-800/10 text-amber-800 rounded-full font-bold text-xs">3</span>`;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50/80 transition';
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 font-medium">${rankBadge}</td>
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-slate-800">${student.fullName}</div>
+                            <div class="text-[10px] text-slate-400">ID: ${student.id}</div>
+                        </td>
+                        <td class="py-3 px-4 text-slate-600">
+                            <span class="inline-block max-w-[150px] truncate" title="${student.campus}">${student.campus}</span>
+                        </td>
+                        <td class="py-3 px-4 text-slate-600 font-medium">${student.course} - ${student.section}</td>
+                        <td class="py-3 px-4 text-center text-slate-600">${student.prelim.toFixed(1)}</td>
+                        <td class="py-3 px-4 text-center text-slate-600">${student.midterm.toFixed(1)}</td>
+                        <td class="py-3 px-4 text-center text-slate-600">${student.final.toFixed(1)}</td>
+                        <td class="py-3 px-4 text-center font-bold text-slate-800 bg-slate-50/50">${student.gwa.toFixed(2)}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${isPassed ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                                ${status}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="systemManager.removeStudent('${student.id}')" 
+                                class="text-slate-400 hover:text-rose-600 p-1.5 transition rounded-lg hover:bg-rose-50" title="Delete Record">
+                                <i class="fa-solid fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        const systemManager = new GradeSystemManager();
+
+        document.getElementById('student-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('student-id').value.trim();
+            const fullName = document.getElementById('full-name').value.trim();
+            const campus = document.getElementById('campus').value;
+            const course = document.getElementById('course').value.trim().toUpperCase();
+            const section = document.getElementById('section').value.trim().toUpperCase();
+            const prelim = document.getElementById('prelim-grade').value;
+            const midterm = document.getElementById('midterm-grade').value;
+            const final = document.getElementById('final-grade').value;
+
+            const duplicate = systemManager.students.some(s => s.id === id);
+            if (duplicate) {
+                alert(`Student ID "${id}" is already registered. Please use a unique Student ID.`);
+                return;
+            }
+
+            const newStudent = new Student(id, fullName, campus, course, section, prelim, midterm, final);
+            
+            systemManager.addStudent(newStudent);
+
+            document.getElementById('student-form').reset();
+        });
+
+        document.getElementById('btn-reset-form').addEventListener('click', () => {
+            document.getElementById('student-form').reset();
+        });
+
+        document.getElementById('search-input').addEventListener('input', () => systemManager.render());
+        document.getElementById('filter-campus').addEventListener('change', () => systemManager.render());
+        document.getElementById('btn-clear-all').addEventListener('click', () => systemManager.clearAllStudents());
+
+        systemManager.render();
+    </script>
+</body>
+</html>
