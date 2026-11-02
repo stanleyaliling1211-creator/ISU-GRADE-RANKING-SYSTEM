@@ -77,46 +77,51 @@ class GradeSystemManager {
     }
 
     saveToStorage() {
-        localStorage.setItem('isu_student_records', JSON.stringify(this.students));
+        try {
+            localStorage.setItem('isu_student_records', JSON.stringify(this.students));
+        } catch (e) {
+            console.error("Failed to save to local storage:", e);
+        }
     }
 
     loadFromStorage() {
-        const stored = localStorage.getItem('isu_student_records');
-        if (stored) {
-            try {
+        try {
+            const stored = localStorage.getItem('isu_student_records');
+            if (stored) {
                 const parsed = JSON.parse(stored);
                 this.students = parsed.map(item => new Student(
                     item.id, item.fullName, item.campus, item.course, 
                     item.section, item.prelim, item.midterm, item.final
                 ));
-            } catch (e) {
-                console.error("Failed to parse local storage records:", e);
-                this.students = [];
             }
+        } catch (e) {
+            console.error("Failed to parse local storage records:", e);
+            this.students = [];
         }
     }
 
     updateDashboardStats() {
         const total = this.students.length;
-        document.getElementById('stat-total-students').textContent = total;
+        const totalElem = document.getElementById('stat-total-students');
+        if (totalElem) totalElem.textContent = total;
 
         if (total === 0) {
-            document.getElementById('stat-overall-gwa').textContent = '0.00';
-            document.getElementById('stat-top-student').textContent = 'N/A';
-            document.getElementById('stat-pass-rate').textContent = '0%';
+            if (document.getElementById('stat-overall-gwa')) document.getElementById('stat-overall-gwa').textContent = '0.00';
+            if (document.getElementById('stat-top-student')) document.getElementById('stat-top-student').textContent = 'N/A';
+            if (document.getElementById('stat-pass-rate')) document.getElementById('stat-pass-rate').textContent = '0%';
             return;
         }
 
         const sumGWA = this.students.reduce((acc, student) => acc + student.gwa, 0);
         const avgGWA = (sumGWA / total).toFixed(2);
-        document.getElementById('stat-overall-gwa').textContent = avgGWA;
+        if (document.getElementById('stat-overall-gwa')) document.getElementById('stat-overall-gwa').textContent = avgGWA;
 
         const sorted = [...this.students].sort((a, b) => b.gwa - a.gwa);
-        document.getElementById('stat-top-student').textContent = sorted[0].fullName;
+        if (document.getElementById('stat-top-student')) document.getElementById('stat-top-student').textContent = sorted[0].fullName;
 
         const passedCount = this.students.filter(s => s.getAcademicStatus() === 'Passed').length;
         const passRate = Math.round((passedCount / total) * 100);
-        document.getElementById('stat-pass-rate').textContent = `${passRate}%`;
+        if (document.getElementById('stat-pass-rate')) document.getElementById('stat-pass-rate').textContent = `${passRate}%`;
     }
 
     initChart() {
@@ -182,8 +187,11 @@ class GradeSystemManager {
         this.updateDashboardStats();
         this.updateChart();
 
-        const campusFilter = document.getElementById('filter-campus').value;
-        const searchQuery = document.getElementById('search-input').value;
+        const filterCampusElem = document.getElementById('filter-campus');
+        const searchInputElem = document.getElementById('search-input');
+
+        const campusFilter = filterCampusElem ? filterCampusElem.value : 'ALL';
+        const searchQuery = searchInputElem ? searchInputElem.value : '';
         const rankedList = this.getRankedStudents(campusFilter, searchQuery);
         
         const tbody = document.getElementById('student-table-body');
@@ -193,10 +201,10 @@ class GradeSystemManager {
         tbody.innerHTML = '';
 
         if (rankedList.length === 0) {
-            emptyState.classList.remove('hidden');
+            if (emptyState) emptyState.classList.remove('hidden');
             return;
         } else {
-            emptyState.classList.add('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
         }
 
         rankedList.forEach((student, index) => {
@@ -244,58 +252,58 @@ class GradeSystemManager {
     }
 }
 
+// Initialize system manager globally
 const systemManager = new GradeSystemManager();
 
-document.addEventListener('DOMContentLoaded', () => {
-    const studentForm = document.getElementById('student-form');
-    const resetBtn = document.getElementById('btn-reset-form');
-    const searchInput = document.getElementById('search-input');
-    const filterCampus = document.getElementById('filter-campus');
-    const clearAllBtn = document.getElementById('btn-clear-all');
+// Setup event listeners directly since script loads at the end of body
+const studentForm = document.getElementById('student-form');
+const resetBtn = document.getElementById('btn-reset-form');
+const searchInput = document.getElementById('search-input');
+const filterCampus = document.getElementById('filter-campus');
+const clearAllBtn = document.getElementById('btn-clear-all');
 
-    if (studentForm) {
-        studentForm.addEventListener('submit', (e) => {
-            e.preventDefault();
+if (studentForm) {
+    studentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-            const id = document.getElementById('student-id').value.trim();
-            const fullName = document.getElementById('full-name').value.trim();
-            const campus = document.getElementById('campus').value;
-            const course = document.getElementById('course').value.trim().toUpperCase();
-            const section = document.getElementById('section').value.trim().toUpperCase();
-            const prelim = document.getElementById('prelim-grade').value;
-            const midterm = document.getElementById('midterm-grade').value;
-            const final = document.getElementById('final-grade').value;
+        const id = document.getElementById('student-id').value.trim();
+        const fullName = document.getElementById('full-name').value.trim();
+        const campus = document.getElementById('campus').value;
+        const course = document.getElementById('course').value.trim().toUpperCase();
+        const section = document.getElementById('section').value.trim().toUpperCase();
+        const prelim = document.getElementById('prelim-grade').value;
+        const midterm = document.getElementById('midterm-grade').value;
+        const final = document.getElementById('final-grade').value;
 
-            const duplicate = systemManager.students.some(s => s.id === id);
-            if (duplicate) {
-                alert(`Student ID "${id}" is already registered. Please provide a unique ID.`);
-                return;
-            }
+        const duplicate = systemManager.students.some(s => s.id === id);
+        if (duplicate) {
+            alert(`Student ID "${id}" is already registered. Please provide a unique ID.`);
+            return;
+        }
 
-            const newStudent = new Student(id, fullName, campus, course, section, prelim, midterm, final);
-            
-            systemManager.addStudent(newStudent);
-            studentForm.reset();
-        });
-    }
+        const newStudent = new Student(id, fullName, campus, course, section, prelim, midterm, final);
+        systemManager.addStudent(newStudent);
+        studentForm.reset();
+    });
+}
 
-    if (resetBtn) {
-        resetBtn.addEventListener('click', () => {
-            document.getElementById('student-form').reset();
-        });
-    }
+if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+        if (studentForm) studentForm.reset();
+    });
+}
 
-    if (searchInput) {
-        searchInput.addEventListener('input', () => systemManager.render());
-    }
+if (searchInput) {
+    searchInput.addEventListener('input', () => systemManager.render());
+}
 
-    if (filterCampus) {
-        filterCampus.addEventListener('change', () => systemManager.render());
-    }
+if (filterCampus) {
+    filterCampus.addEventListener('change', () => systemManager.render());
+}
 
-    if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', () => systemManager.clearAllStudents());
-    }
+if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', () => systemManager.clearAllStudents());
+}
 
-    systemManager.render();
-});
+// Initial render call
+systemManager.render();
